@@ -3353,6 +3353,7 @@ class StockAnalysisPipeline:
 
                 send_kwargs: Dict[str, Any] = {
                     "email_stock_codes": [stock_code],
+                    "email_subject": f"📈 个股智能分析报告 - {getattr(result, 'name', stock_code)} ({stock_code})",
                     "route_type": "report",
                     "severity": "info",
                     "dedup_key": f"report:single:{stock_code}:{report_type.value}",

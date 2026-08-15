@@ -2522,6 +2522,7 @@ class NotificationService(
         image_bytes: Optional[bytes],
         email_stock_codes: Optional[List[str]],
         email_send_to_all: bool,
+        email_subject: Optional[str] = None,
         route_type: Optional[str] = None,
     ) -> bool:
         use_image = self._should_use_image_for_channel(channel, image_bytes)
@@ -2554,6 +2555,7 @@ class NotificationService(
                 return self._send_email_with_inline_image(image_bytes, receivers=receivers)
             return self.send_to_email(
                 sanitized_content,
+                subject=email_subject,
                 receivers=receivers,
             )
         if channel == NotificationChannel.PUSHOVER:
@@ -2586,6 +2588,7 @@ class NotificationService(
         content: str,
         email_stock_codes: Optional[List[str]] = None,
         email_send_to_all: bool = False,
+        email_subject: Optional[str] = None,
         route_type: Optional[str] = None,
         severity: Optional[str] = None,
         dedup_key: Optional[str] = None,
@@ -2746,6 +2749,7 @@ class NotificationService(
                     image_bytes=image_bytes,
                     email_stock_codes=email_stock_codes,
                     email_send_to_all=email_send_to_all,
+                    email_subject=email_subject,
                     route_type=route_type,
                 )
                 latency_ms = int((time.monotonic() - started_at) * 1000)
@@ -2804,6 +2808,7 @@ class NotificationService(
         content: str,
         email_stock_codes: Optional[List[str]] = None,
         email_send_to_all: bool = False,
+        email_subject: Optional[str] = None,
         route_type: Optional[str] = None,
         severity: Optional[str] = None,
         dedup_key: Optional[str] = None,
@@ -2820,6 +2825,7 @@ class NotificationService(
             content,
             email_stock_codes=email_stock_codes,
             email_send_to_all=email_send_to_all,
+            email_subject=email_subject,
             route_type=route_type,
             severity=severity,
             dedup_key=dedup_key,
