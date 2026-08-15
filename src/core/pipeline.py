@@ -3351,9 +3351,14 @@ class StockAnalysisPipeline:
                     )
                     return
 
+                weekend_review_focus = getattr(self.config, "weekend_review_focus", "")
+                subject_prefix = {
+                    "weekly_validation": "📋 周六本周复盘",
+                    "next_week_plan": "🎯 周日下周作战计划",
+                }.get(weekend_review_focus, "🌅 盘前个股晨报")
                 send_kwargs: Dict[str, Any] = {
                     "email_stock_codes": [stock_code],
-                    "email_subject": f"📈 个股智能分析报告 - {getattr(result, 'name', stock_code)} ({stock_code})",
+                    "email_subject": f"{subject_prefix} - {getattr(result, 'name', stock_code)} ({stock_code})",
                     "route_type": "report",
                     "severity": "info",
                     "dedup_key": f"report:single:{stock_code}:{report_type.value}",

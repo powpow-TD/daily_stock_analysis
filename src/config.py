@@ -1114,6 +1114,8 @@ class Config:
     # 报告类型：simple(精简) 或 full(完整)
     report_type: str = "simple"
     report_language: str = "zh"
+    # Weekend review topic: weekly_validation (Saturday) / next_week_plan (Sunday).
+    weekend_review_focus: str = ""
 
     # 仅分析结果摘要：true 时只推送汇总，不含个股详情（Issue #262）
     report_summary_only: bool = False
@@ -2068,6 +2070,7 @@ class Config:
             single_stock_notify=os.getenv('SINGLE_STOCK_NOTIFY', 'false').lower() == 'true',
             report_type=cls._parse_report_type(os.getenv('REPORT_TYPE', 'simple')),
             report_language=cls._parse_report_language(report_language_raw),
+            weekend_review_focus=os.getenv('WEEKEND_REVIEW_FOCUS', '').strip().lower(),
             report_summary_only=os.getenv('REPORT_SUMMARY_ONLY', 'false').lower() == 'true',
             report_show_llm_model=report_show_llm_model,
             report_templates_dir=os.getenv('REPORT_TEMPLATES_DIR', 'templates'),

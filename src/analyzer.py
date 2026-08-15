@@ -3750,6 +3750,23 @@ class GeminiAnalyzer:
             context.get("market_phase_context"),
             report_language=report_language,
         )
+        weekend_review_focus = self._get_runtime_config().weekend_review_focus
+        if weekend_review_focus == "weekly_validation":
+            prompt += """
+## 周六复盘任务：本周验证复盘
+- 只复盘最近一个完整交易周已经发生的事实：趋势、量价、关键价位是否被验证、已兑现或失效的信号。
+- 用简单语言写清“本周发生了什么、哪些判断对了或错了、证据是什么”。
+- 给出下周需要继续跟踪的 2–3 个条件，但不要提前写成完整的下周交易计划。
+- 不得重复周日的催化日历、仓位分档和情景作战计划；不得编造周末盘中行情。
+"""
+        elif weekend_review_focus == "next_week_plan":
+            prompt += """
+## 周日复盘任务：下周作战计划
+- 基于最近完整交易日和已知公开事件，输出下周的情景计划：看多、看空、震荡三种条件及各自的观察价位与风险边界。
+- 用简单语言写清“下周先看什么、满足什么条件才行动、什么情况下停止执行”。
+- 优先列出即将发生的公开催化、需要确认的数据和仓位控制原则。
+- 不得重复周六的逐日验证叙述；不得把尚未发生的行情写成事实，也不得承诺收益。
+"""
         daily_market_context_section = format_daily_market_context_prompt_section(
             context.get("daily_market_context"),
             report_language=report_language,

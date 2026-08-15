@@ -3,7 +3,8 @@ name: 每日股票分析
 on:
   # 定时触发 - A 股工作日北京时间 08:30 (UTC 00:30)
   schedule:
-    - cron: '30 0 * * 1-5'     # 周一到周五，UTC 00:30 = 北京时间 08:30
+    # UTC 00:30 = 北京时间 08:30：工作日晨报，周末分别执行两种复盘。
+    - cron: '30 0 * * *'
   
   # 手动触发
   workflow_dispatch:
@@ -448,7 +449,24 @@ jobs:
           fi
 
           # 判断运行模式
-          MODE="${{ github.event.inputs.mode || 'full' }}"
+          # Scheduled runs send the two-stock reports only; manual runs keep the selected mode.
+          MODE="${{ github.event.inputs.mode || '' }}"
+          if [ -z "$MODE" ]; then
+            MODE="stocks-only"
+          fi
+
+          # Weekend reports must use only the most recent complete trading-day data.
+          BEIJING_WEEKDAY="$(TZ='Asia/Shanghai' date +%u)"
+          WEEKEND_REVIEW_FOCUS=""
+          SCHEDULED_WEEKEND=false
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$BEIJING_WEEKDAY" = "6" ]; then
+            SCHEDULED_WEEKEND=true
+            WEEKEND_REVIEW_FOCUS="weekly_validation"
+          elif [ "${{ github.event_name }}" = "schedule" ] && [ "$BEIJING_WEEKDAY" = "7" ]; then
+            SCHEDULED_WEEKEND=true
+            WEEKEND_REVIEW_FOCUS="next_week_plan"
+          fi
+          export WEEKEND_REVIEW_FOCUS
           
           echo "=========================================="
           echo "🚀 A股自选股智能分析系统"
@@ -520,7 +538,10 @@ jobs:
           
           # 构建命令行参数
           FORCE_RUN_ARG=""
-          if [ "${{ github.event.inputs.force_run }}" = "true" ]; then
+          if [ "$SCHEDULED_WEEKEND" = true ]; then
+            FORCE_RUN_ARG="--force-run"
+            echo "Weekend review: force-run uses the last complete trading-day data only"
+          elif [ "${{ github.event.inputs.force_run }}" = "true" ]; then
             FORCE_RUN_ARG="--force-run"
             echo "⚡ 已启用强制运行模式（跳过交易日检查）"
           fi
